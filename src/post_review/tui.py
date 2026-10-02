@@ -67,7 +67,13 @@ class ReviewApp(App[None]):
             return
         item = self.items[self.position]
         post, a = item.post, item.assessment
-        date = parse_timestamp(post.created_at).astimezone(self.zone).strftime("%Y年%m月%d日 %H:%M:%S %Z")
+        local_dt = parse_timestamp(post.created_at).astimezone(self.zone)
+        # Keep Japanese literals out of the platform's locale-dependent strftime.
+        date = (
+            f"{local_dt.year:04d}年{local_dt.month:02d}月{local_dt.day:02d}日 "
+            f"{local_dt.hour:02d}:{local_dt.minute:02d}:{local_dt.second:02d} "
+            f"{local_dt.tzname() or ''}"
+        )
         probability = f"削除候補のモデル推定確率：{a.delete_probability:.1%}"
         if a.origin == "local_guard":
             probability = "モデル推定確率：未計算（ローカルの入力制限による保留）"

@@ -3,7 +3,7 @@ import pytest
 
 pytest.importorskip("textual", reason="Textual optional dependency is not installed")
 
-from textual.widgets import Input
+from textual.widgets import Input, Static
 from post_review.domain import Period
 from post_review.demo import seed_demo
 from post_review.tui import ReviewApp
@@ -72,3 +72,40 @@ async def test_long_post_and_controls_are_not_truncated_in_storage(store, item):
         await pilot.press("pagedown")
         await pilot.pause()
         assert store.post(long_post.id).text.endswith("\x1b[2J終端")
+
+
+@pytest.mark.parametrize("timestamp, zone, expected", [
+    ("2025-06-14T14:18:07Z", "Asia/Tokyo", "2025年06月14日 23:18:07 JST"),
+    ("2024-12-31T15:00:00Z", "Asia/Tokyo", "2025年01月01日 00:00:00 JST"),
+    ("2025-06-14T14:18:07Z", "UTC", "2025年06月14日 14:18:07 UTC"),
+    ("2025-06-14T14:18:07Z", "America/New_York", "2025年06月14日 10:18:07 EDT"),
+    ("2025-01-14T14:18:07Z", "America/New_York", "2025年01月14日 09:18:07 EST"),
+])
+async def test_post_date_does_not_require_non_ascii_strftime(
+    store, item, monkeypatch, timestamp, zone, expected
+):
+    from dataclasses import replace
+    import time
+
+    native_strftime = time.strftime
+
+    def ascii_only_strftime(format_string, *args):
+        # Reproduce the failing locale boundary on every CI platform, without
+        # changing the process-wide locale or requiring a Japanese locale.
+        format_string.encode("ascii")
+        return native_strftime(format_string, *args)
+
+    monkeypatch.setattr(time, "strftime", ascii_only_strftime)
+    post = replace(item.post, created_at=timestamp)
+    store.ingest(post.owner_id, [post])
+    store.save_assessment(post, item.profile_id, item.assessment)
+    app = ReviewApp(store, [replace(item, post=post)], timezone_name=zone)
+    async with app.run_test(size=(100, 32)) as pilot:
+        await pilot.pause()
+        body = app.query_one("#post-body", Static).content
+        assert isinstance(body, str)
+        assert f"投稿日時：{expected}\n" in body
+        await pilot.press("n", "enter")
+        await pilot.pause()
+        assert store.decision(post) == "keep"
+        assert store.deletion(post.id) is None
