@@ -1,0 +1,28 @@
+........................................................................ [ 55%]
+..........................................................               [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.5-final-0 ________________
+
+Name                                    Stmts   Miss  Cover   Missing
+---------------------------------------------------------------------
+src/post_review/__init__.py                 1      0   100%
+src/post_review/__main__.py                 2      2     0%   1-3
+src/post_review/archive.py                140     23    84%   34, 43, 46, 49, 54, 56, 60, 64, 68, 72, 75, 78, 107, 110, 112, 118-119, 125, 131, 134, 137, 142, 145
+src/post_review/cli.py                    226     98    57%   30-31, 38-44, 106-109, 118-120, 124-126, 131-139, 147-154, 167-171, 173, 179-180, 187-204, 206-222, 229, 233-234, 242-262, 269-271, 276-277, 281-285
+src/post_review/deletion.py               131     11    92%   30, 32, 35, 58, 72, 74-75, 92, 99, 139, 141
+src/post_review/demo.py                    17      1    94%   18
+src/post_review/domain.py                 141      9    94%   47, 57, 69, 73-74, 76, 106, 153, 161
+src/post_review/errors.py                   9      0   100%
+src/post_review/pipeline.py                49      1    98%   41
+src/post_review/providers/__init__.py       0      0   100%
+src/post_review/providers/azure.py         31      1    97%   16
+src/post_review/providers/http.py          50     12    76%   22-26, 38, 47-51, 62
+src/post_review/providers/jev.py           58      7    88%   28, 30-31, 39, 41, 50, 76
+src/post_review/providers/x.py             92     18    80%   20, 27, 45, 50, 55, 58-61, 65, 67, 70-71, 83, 85-86, 94-95, 116
+src/post_review/store.py                  176     16    91%   65, 71-75, 100, 113, 129, 163, 169, 195, 197, 232, 235, 246
+src/post_review/tui.py                    117    117     0%   2-152
+---------------------------------------------------------------------
+TOTAL                                    1240    316    75%
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_tui.py:4: Textual optional dependency is not installed
+130 passed, 1 skipped in 0.77s

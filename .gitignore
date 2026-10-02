@@ -1,0 +1,36 @@
+# Private inputs, credentials, state, caches and terminal recordings
+.env
+.env.*
+!.env.example
+.local/
+private/
+archives/
+x-archive*/
+twitter-archive*/
+*.sqlite*
+*.db
+*.db-*
+*.lock
+*.log
+*.cast
+*.zip
+account.js
+tweet.js
+tweets*.js
+note-tweet*.js
+# Python/build
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage*
+htmlcov/
+coverage.xml
+# Local editors
+.vscode/
+.idea/
+.DS_Store
