@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import sqlite3
 import time
-from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -180,7 +179,7 @@ class Store:
 
     def save_assessment(self, post: Post, profile: str, assessment: Assessment | None,
                         error_code: str | None = None) -> None:
-        payload = json.dumps(asdict(assessment), ensure_ascii=False, allow_nan=False) if assessment else None
+        payload = json.dumps(assessment.to_dict(), ensure_ascii=False, allow_nan=False) if assessment else None
         with self.conn:
             self.conn.execute("INSERT OR REPLACE INTO assessments VALUES (?,?,?,?,?,?)",
                               (post.id, post.revision, profile, payload, error_code, time.time()))

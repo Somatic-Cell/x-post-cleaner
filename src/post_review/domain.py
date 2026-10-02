@@ -5,8 +5,10 @@ import json
 import math
 import re
 import unicodedata
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
+from types import MappingProxyType
 from typing import Any
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -137,13 +139,33 @@ class Post:
 @dataclass(frozen=True)
 class Assessment:
     choice: str
-    probabilities: dict[str, float]
+    probabilities: Mapping[str, float]
     confidence: float
     model: str
     input_hash: str
     translation: str | None = None
-    usage: dict[str, int] | None = None
+    usage: Mapping[str, int] | None = None
     origin: str = "jev"
+
+    def __post_init__(self) -> None:
+        # Copy before wrapping: a read-only view of the caller's dictionary
+        # would still change when the caller mutates that dictionary.
+        object.__setattr__(self, "probabilities", MappingProxyType(dict(self.probabilities)))
+        if self.usage is not None:
+            object.__setattr__(self, "usage", MappingProxyType(dict(self.usage)))
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return independent, JSON-compatible data using the existing DB schema."""
+        return {
+            "choice": self.choice,
+            "probabilities": dict(self.probabilities),
+            "confidence": self.confidence,
+            "model": self.model,
+            "input_hash": self.input_hash,
+            "translation": self.translation,
+            "usage": dict(self.usage) if self.usage is not None else None,
+            "origin": self.origin,
+        }
 
     @classmethod
     def validate(cls, raw: dict[str, Any], **extra: Any) -> Assessment:
